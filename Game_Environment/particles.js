@@ -1,32 +1,48 @@
-import * as BABYLON  from "@babylonjs/core"
- 
-export const particles = (position) => {
-  const particleSystem = new BABYLON.ParticleSystem("particles", 2000);
- 
-  particleSystem.particleTexture = new BABYLON.Texture("Images/flare.png");
- 
-  particleSystem.color1 = new BABYLON.Color4(0.7, 0.8, 1.0, 1.0);
-  particleSystem.color2 = new BABYLON.Color4(0.9, 0.1, .1, 1.0);
-  particleSystem.colorDead = new BABYLON.Color4(0.412, 0.529, 0, 1);
-  particleSystem.minSize = 0.05;
-  particleSystem.maxSize = 0.8;
-  particleSystem.minLifeTime = 0.3;
-  particleSystem.maxLifeTime = 1.5;
-  particleSystem.emitRate = 5000;
-  particleSystem.gravity = new BABYLON.Vector3(0, -9.81, 0);
-  particleSystem.direction1 = new BABYLON.Vector3(-10, 8, 30);
-  particleSystem.direction2 = new BABYLON.Vector3(10, -8, -3);
-  particleSystem.minAngularSpeed = 0;
-  particleSystem.maxAngularSpeed = Math.PI;
-  particleSystem.minEmitPower = 1;
-  particleSystem.maxEmitPower = 3;
-  particleSystem.updateSpeed = 0.005;
-  particleSystem.emitter = position;
- 
-  particleSystem.start();
- 
-  particleSystem.targetStopDuration = 0.6;
- 
-  return particleSystem;
+import { Color4, Vector3, ParticleSystem, Texture } from "@babylonjs/core";
+import config from "../config.json";
+
+//importing colors and directional vectors from config
+const colors = [];
+for (const { r, g, b, a } of config.particles.colors) {
+  const color = new Color4(r, g, b, a);
+  colors.push(color);
 }
- 
+
+const vectors = [];
+for (const { x, y, z } of config.particles.dirVectors) {
+  const vector = new Vector3(x, y, z);
+  vectors.push(vector);
+}
+
+export const particles = (position) => {
+  const particleSystem = new ParticleSystem(
+    "particles",
+    config.particles.capacity
+  );
+
+  particleSystem.particleTexture = new Texture("Images/flare.png");
+
+  particleSystem.color1 = colors[0];
+  particleSystem.color2 = colors[1];
+  particleSystem.colorDead = colors[2];
+  particleSystem.minSize = config.particles.size[0];
+  particleSystem.maxSize = config.particles.size[1];
+  particleSystem.minLifeTime = config.particles.lifetime[0];
+  particleSystem.maxLifeTime = config.particles.lifetime[1];
+  particleSystem.emitRate = config.particles.emitrate;
+  particleSystem.gravity = vectors[0];
+  particleSystem.direction1 = vectors[1];
+  particleSystem.direction2 = vectors[2];
+  particleSystem.minAngularSpeed = config.particles.angularspeed[0];
+  particleSystem.maxAngularSpeed = config.particles.angularspeed[1];
+  particleSystem.minEmitPower = config.particles.emitpower[0];
+  particleSystem.maxEmitPower = config.particles.emitpower[0];
+  particleSystem.updateSpeed = config.particles.updatespeed;
+  particleSystem.emitter = position;
+
+  particleSystem.start();
+
+  particleSystem.targetStopDuration = 0.6;
+
+  return particleSystem;
+};
