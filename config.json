@@ -1,0 +1,46 @@
+{
+    "animation": {
+        "movementAnimationValues": [
+            {"frame": 0, "x": 0, "y": 20, "z": -120},
+            {"frame": 1, "x": 0, "y": 10, "z": -100},
+            {"frame": 5, "x": 0, "y": 10, "z": 60},
+            {"frame": 6, "x": 0, "y": 30, "z": 50},
+            {"frame": 13, "x": 0, "y": 30, "z": -100},
+            {"frame": 14, "x": 0, "y": 25, "z": -100}
+        ],
+        "rotationAnimationValues": [
+            {"frame": 0, "yRotation": 0},
+            {"frame": 5, "yRotation": 0},
+            {"frame": 9, "yRotation": 3.141592653589793},
+            {"frame": 13, "yRotation": 6.283185307179586}
+        ],
+        "frameRate": 30,
+        "startFrame": 0,
+        "endFrame": 14
+    },
+    "ball": {
+        "scaling": [1, 1, 1],
+        "position": [0, 4, -62],
+        "mass": 1,
+        "restitution": 0.45,
+        "friction": 0.75
+    },
+    "pin": {
+        "scaling": [1.5, 1.5, 1.5],
+        "positions": [
+            {"x": -10,"y": 0.5,"z": 98},
+            {"x": -4,"y": 0.5,"z": 98},
+            {"x": 4,"y": 0.5,"z": 98},
+            {"x": 10,"y": 0.5,"z": 98},
+            {"x": 0,"y": 0.5,"z": 94},
+            {"x": -7,"y": 0.5,"z": 94},
+            {"x": 7,"y": 0.5,"z": 94},
+            {"x": -3.5,"y": 0.5,"z": 90},
+            {"x": 3.5,"y": 0.5,"z": 90},
+            {"x": 0,"y": 0.5,"z": 86}
+        ],
+        "mass": 0.25,
+        "restitution": 0.1,
+        "friction": 1.6
+    }
+}
