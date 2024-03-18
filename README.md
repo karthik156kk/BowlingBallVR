@@ -20,6 +20,8 @@ Drag the ball to adjust the speed with which the ball hit the pins.
 
 **How to Clone**
 
-1. clone the Repository using _git clone https://github.com/A-rjun-g/BowlingBallVR.git_
-2. _npm install_
-3. _npm run dev_
+```bash
+    git clone https://github.com/Dhinesh-M-7/BowlingBallVR.git
+    npm install
+    npm run dev
+```
