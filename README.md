@@ -14,9 +14,14 @@ Drag the ball to adjust the speed with which the ball hit the pins.
 
 **Built With**
 
-[https://www.babylonjs.com/](url)  
+[https://www.babylonjs.com/](url)
 
 [https://www.npmjs.com/package/@babylonjs/havok](url)
 
+**How to Clone**
 
-
+```bash
+    git clone https://github.com/Dhinesh-M-7/BowlingBallVR.git
+    npm install
+    npm run dev
+```
