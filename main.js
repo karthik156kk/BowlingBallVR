@@ -23,6 +23,8 @@ import {
 } from "./Game_Environment/bowlingBallAndPins";
 import { renderScoreBoard } from "./Game_GUI/renderScoreBoard";
 import { StartNewGame } from "./Game_Logic/newGameDataStructure";
+import config from "./config.json"
+
 
 const canvas = document.getElementById("renderCanvas");
 const engine = new BABYLON.Engine(canvas);
@@ -32,13 +34,13 @@ async function createScene() {
 
   const havokInstance = await HavokPhysics();
   const havokPlugin = new BABYLON.HavokPlugin(true, havokInstance);
-  scene.enablePhysics(new BABYLON.Vector3(0, -9.8, 0), havokPlugin);
+  scene.enablePhysics(new BABYLON.Vector3(config.gravity.x, config.gravity.y, config.gravity.z), havokPlugin);
 
   const camera = new BABYLON.UniversalCamera(
     "camera",
-    new BABYLON.Vector3(0, 25, -100)
+    new BABYLON.Vector3(config.camera.position.x, config.camera.position.y, config.camera.position.z)
   );
-  camera.setTarget(new BABYLON.Vector3(0, 0, 0));
+  camera.setTarget(BABYLON.Vector3.Zero());
   camera.inputs.clear();
   camera.attachControl();
 
@@ -121,7 +123,7 @@ async function createScene() {
   });
 
   // Create a new instance of StartGame with generalPins
-  let game = new StartNewGame(setPins, ["Player 1"]);
+  let game = new StartNewGame(setPins, config.game.players);
   createAnimations(camera, scene, game);
   createRollSound();
   renderScoreBoard(scene);

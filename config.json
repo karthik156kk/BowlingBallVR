@@ -142,5 +142,13 @@
     "scaling": { "x": 32, "y": 15, "z": 30 },
     "color": ["navyblue", "#14f9fe"],
     "fontsize": 45
+  },
+  "gravity": {"x": 0, "y": -9.8, "z": 0},
+  "camera": {
+    "position": {
+      "x": 0,
+      "y": 25,
+      "z": -100
+    }
   }
 }
