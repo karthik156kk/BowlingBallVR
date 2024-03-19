@@ -1,6 +1,6 @@
 import * as BABYLON from "@babylonjs/core";
 
-export const createEnvironment = (scene) => {
+export const createEnvironment = async(scene) => {
 
   //creation of ground
   const ground = BABYLON.MeshBuilder.CreateGround("ground", {
@@ -129,5 +129,6 @@ export const createEnvironment = (scene) => {
       restitution: 0.25,
     }
   );
-  //var xr = scene.createDefaultXRExperienceAsync({ floorMeshes: [ground] });
+  const xrhelper = await scene.createDefaultXRExperienceAsync({ floorMeshes: [ground] });
+  console.log(xrhelper);
 };

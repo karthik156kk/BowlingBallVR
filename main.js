@@ -58,7 +58,6 @@ async function createScene() {
   aim.isVisible = false;
   let [bowling_ball, bowlingAggregate] = createBowlingBall(bowlingBallResult);
   aim.parent = bowling_ball;
-
   createEnvironment(scene);
   createLights();
   createGameMusic(scene);
@@ -135,6 +134,27 @@ async function createScene() {
       case BABYLON.KeyboardEventTypes.KEYDOWN:
         ballMovement(bowling_ball, kbInfo.event.key);
     }
+  });
+
+  const xr = await scene.createDefaultXRExperienceAsync({
+ 
+    floorMeshes: [scene.ground]
+  });
+  xr.teleportation.addFloorMesh(scene.ground);
+ 
+ 
+  xr.input.onControllerAddedObservable.add((controller) => {
+    controller.onMotionControllerInitObservable.add((motionController) => {
+        if (motionController.handness === 'left') {
+             const xr_ids = motionController.getComponentIds();
+             let triggerComponent = motionController.getComponent(xr_ids[0]);//xr-standard-trigger
+             triggerComponent.onButtonStateChangedObservable.add(() => {
+                 if (triggerComponent.pressed) {
+                     pointerUp2(startingPoint, aim, game, ballMovementObjects, bowlingPinResult, createBowlingPins, scene, triggerComponent);
+                 };
+             });
+        };
+    });
   });
 
   return scene;

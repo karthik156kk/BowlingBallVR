@@ -12,6 +12,36 @@ export const pointerDown = (mesh, getPointerPosition) => {
   return [mesh, startingPoint];
 };
 
+export const pointerUp2 = (
+  startingPoint,
+  aim,
+  game,
+  ballMovementObjects,
+  bowlingPinResult,
+  createBowlingPins,
+  scene,
+  triggerComponent
+) => {
+  const bowlingBallPosition = ballMovementObjects.bowling_ball.absolutePosition;
+ 
+  //Mapping ball Speed with respect to the dragiing of the ball
+ // const ballSpeed = (-bowlingBallPosition.z - 62) * 40;
+ // if (bowlingBallPosition.z < -63) {
+  if(triggerComponent){
+    //Applying impulse to the ball
+    ballMovementObjects.bowlingAggregate.body.applyImpulse(
+      new BABYLON.Vector3(-aim.rotation.y * 120, 0,80),
+      ballMovementObjects.bowling_ball.getAbsolutePosition()
+    );
+    window.globalShootmusic.play();
+    setTimeout(function () {
+      window.globalShootmusic.stop();
+    }, 1500);
+    game.ballIsRolled = true;
+  }
+}
+
+
 export const pointerUp = (
   startingPoint,
   aim,
