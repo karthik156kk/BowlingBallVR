@@ -23,12 +23,9 @@ for (const { x, y, z } of config.wall.rotations) {
   rotations.push(rotation);
 }
 
-<<<<<<< HEAD
 export const createEnvironment = async(scene) => {
 
-=======
-export const createEnvironment = (scene) => {
->>>>>>> 4a028ac45bb1b01e6d045ef41ebadcd7a1d6bb25
+
   //creation of ground
   const ground = MeshBuilder.CreateGround("ground", {
     width: config.ground.width,
@@ -112,48 +109,5 @@ export const createEnvironment = (scene) => {
   roof.rotation = rotations[5];
   roof.position = positions[5];
 
-<<<<<<< HEAD
-  //Adding invisible planes at the sides of bowling lane to prevent pins from leaving the lane.
-  const laneProtector1 = new BABYLON.MeshBuilder.CreatePlane("laneProtector", {
-    height: 50,
-    width: 300
-  });
-  laneProtector1.position.x = -15;
-  laneProtector1.position.y = 25;
-  laneProtector1.rotation.y = -Math.PI / 2;
-  laneProtector1.isVisible = false;
-
-  const laneProtector1Agg = new BABYLON.PhysicsAggregate(
-    laneProtector1,
-    BABYLON.PhysicsShapeType.BOX,
-    {
-      mass: 0,
-      restitution: 0.25,
-    }
-  );
-
-
-  const laneProtector2
-   = new BABYLON.MeshBuilder.CreatePlane("laneProtector", {
-    height: 50,
-    width: 300
-  });
-  laneProtector2.position.x = 15;
-  laneProtector2.position.y = 25;
-  laneProtector2.rotation.y = Math.PI / 2;
-  laneProtector2.isVisible = false;
-
-  const laneProtector2Agg = new BABYLON.PhysicsAggregate(
-    laneProtector2,
-    BABYLON.PhysicsShapeType.BOX,
-    {
-      mass: 0,
-      restitution: 0.25,
-    }
-  );
-  const xrhelper = await scene.createDefaultXRExperienceAsync({ floorMeshes: [ground] });
-  console.log(xrhelper);
-=======
   //var xr = scene.createDefaultXRExperienceAsync({ floorMeshes: [ground] });
->>>>>>> 4a028ac45bb1b01e6d045ef41ebadcd7a1d6bb25
 };

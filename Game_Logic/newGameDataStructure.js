@@ -9,7 +9,7 @@ export class StartNewGame {
     this.entireFrames = [];
     this.pinsArray = [];
     this.currentFrameIndex = 0;
-    this.totalAttempts = 3;
+    this.totalAttempts = 100;
 
     this.players = players;
     this.totalScores = new Array(players.length).fill(0);

@@ -8,6 +8,7 @@ import {
   pointerMove,
   ballMovement,
 } from "./Game_Logic/ballMovementHandler";
+import { pointerDown2, pointerUp2, pointerMove2 } from "./Game_Logic/motionControllerBallMovement";
 import { createEnvironment } from "./Game_Environment/environment";
 import {
   createLights,
@@ -23,6 +24,7 @@ import {
 } from "./Game_Environment/bowlingBallAndPins";
 import { renderScoreBoard } from "./Game_GUI/renderScoreBoard";
 import { StartNewGame } from "./Game_Logic/newGameDataStructure";
+import { startMenuGUI } from "./Game_GUI/startMenuGUI";
 
 const canvas = document.getElementById("renderCanvas");
 const engine = new BABYLON.Engine(canvas);
@@ -141,21 +143,45 @@ async function createScene() {
     floorMeshes: [scene.ground]
   });
   xr.teleportation.addFloorMesh(scene.ground);
- 
- 
-  xr.input.onControllerAddedObservable.add((controller) => {
-    controller.onMotionControllerInitObservable.add((motionController) => {
-        if (motionController.handness === 'left') {
-             const xr_ids = motionController.getComponentIds();
-             let triggerComponent = motionController.getComponent(xr_ids[0]);//xr-standard-trigger
-             triggerComponent.onButtonStateChangedObservable.add(() => {
-                 if (triggerComponent.pressed) {
-                     pointerUp2(startingPoint, aim, game, ballMovementObjects, bowlingPinResult, createBowlingPins, scene, triggerComponent);
-                 };
-             });
-        };
-    });
+
+  function mapValue(value, fromMin, fromMax, toMin, toMax) {
+    var normalizedValue = (value - fromMin) / (fromMax - fromMin);
+    var mappedValue = normalizedValue * (toMax - toMin) + toMin;
+    return mappedValue;
+}
+
+xr.input.onControllerAddedObservable.add((controller) => {
+  controller.onMotionControllerInitObservable.add((motionController) => {
+      if (motionController.handness === 'right') {
+           let triggerComponent = motionController.getComponent("xr-standard-trigger");//xr-standard-trigger
+           let buttonComponent = motionController.getComponent("b-button");//y-button
+           let thumbStickComponent = motionController.getComponent("xr-standard-thumbstick");//xr-standard-thumbstick
+           let shootButtonComponent = motionController.getComponent("xr-standard-squeeze");//y-button
+           if(/* game.isGameStarted */ true){
+            buttonComponent.onButtonStateChangedObservable.add(()=>{
+                if(buttonComponent.pressed){
+                  aim.isVisible = true;
+                  pointerDown2(xr);
+                  // console.log('hi')
+                }
+            });
+            thumbStickComponent.onAxisValueChangedObservable.add((value)=>{
+              if(!game.ballIsRolled) pointerMove2(value, ballMovementObjects, aim, mapValue)
+            })
+            shootButtonComponent.onButtonStateChangedObservable.add(() => {
+              if(shootButtonComponent.pressed){
+                if(!game.ballIsRolled){
+                    aim.isVisible = false;
+                    pointerUp2(aim, game, ballMovementObjects, bowlingPinResult, createBowlingPins, scene,triggerComponent,mapValue);
+                }
+              }
+            });
+          }
+      };
   });
+});
+
+// startMenuGUI(scene, game);
 
   return scene;
 }
