@@ -1,4 +1,4 @@
-import * as BABYLON from "@babylonjs/core";
+import { Engine, Scene, HavokPlugin, Vector3, UniversalCamera, SceneLoader, PointerEventTypes, KeyboardEventTypes } from "@babylonjs/core";
 import "@babylonjs/loaders";
 
 import { rollCollisionHandler } from "./Game_Logic/gameCollisionHandler";
@@ -27,30 +27,30 @@ import config from "./config.json"
 
 
 const canvas = document.getElementById("renderCanvas");
-const engine = new BABYLON.Engine(canvas);
+const engine = new Engine(canvas);
 
 async function createScene() {
-  const scene = new BABYLON.Scene(engine);
+  const scene = new Scene(engine);
 
   const havokInstance = await HavokPhysics();
-  const havokPlugin = new BABYLON.HavokPlugin(true, havokInstance);
-  scene.enablePhysics(new BABYLON.Vector3(config.gravity.x, config.gravity.y, config.gravity.z), havokPlugin);
+  const havokPlugin = new HavokPlugin(true, havokInstance);
+  scene.enablePhysics(new Vector3(config.gravity.x, config.gravity.y, config.gravity.z), havokPlugin);
 
-  const camera = new BABYLON.UniversalCamera(
+  const camera = new UniversalCamera(
     "camera",
-    new BABYLON.Vector3(config.camera.position.x, config.camera.position.y, config.camera.position.z)
+    new Vector3(config.camera.position.x, config.camera.position.y, config.camera.position.z)
   );
-  camera.setTarget(BABYLON.Vector3.Zero());
+  camera.setTarget(Vector3.Zero());
   camera.inputs.clear();
   camera.attachControl();
 
-  const bowlingPinResult = await BABYLON.SceneLoader.ImportMeshAsync(
+  const bowlingPinResult = await SceneLoader.ImportMeshAsync(
     "",
     "Models/",
     "bowling_pin.glb"
   );
 
-  const bowlingBallResult = await BABYLON.SceneLoader.ImportMeshAsync(
+  const bowlingBallResult = await SceneLoader.ImportMeshAsync(
     "",
     "Models/",
     "bowling_ball.glb"
@@ -85,7 +85,7 @@ async function createScene() {
   scene.onPointerObservable.add((pointerInfo) => {
     if (game.isGameStarted === true) {
       switch (pointerInfo.type) {
-        case BABYLON.PointerEventTypes.POINTERDOWN:
+        case PointerEventTypes.POINTERDOWN:
           if (
             pointerInfo.pickInfo.hit &&
             pointerInfo.pickInfo.pickedMesh == bowling_ball
@@ -97,7 +97,7 @@ async function createScene() {
             );
           }
           break;
-        case BABYLON.PointerEventTypes.POINTERUP:
+        case PointerEventTypes.POINTERUP:
           aim.isVisible = false;
           [startingPoint, currentMesh] = pointerUp(
             startingPoint,
@@ -109,7 +109,7 @@ async function createScene() {
             scene
           );
           break;
-        case BABYLON.PointerEventTypes.POINTERMOVE:
+        case PointerEventTypes.POINTERMOVE:
           startingPoint = pointerMove(
             startingPoint,
             getPointerPosition,
@@ -134,7 +134,7 @@ async function createScene() {
 
   scene.onKeyboardObservable.add((kbInfo) => {
     switch (kbInfo.type) {
-      case BABYLON.KeyboardEventTypes.KEYDOWN:
+      case KeyboardEventTypes.KEYDOWN:
         ballMovement(bowling_ball, kbInfo.event.key);
     }
   });

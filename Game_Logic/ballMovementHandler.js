@@ -1,4 +1,4 @@
-import * as BABYLON from "@babylonjs/core";
+import { Vector3 } from "@babylonjs/core";
 import "@babylonjs/loaders";
 import { startMenuGUI } from "../Game_GUI/startMenuGUI";
 import {
@@ -6,6 +6,7 @@ import {
   currentRollScoreBoardDisplay,
 } from "../Game_GUI/renderScoreBoard";
 import { updateGameScores } from "../Game_GUI/scoreBoard";
+import config from "../config.json"
 
 export const pointerDown = (mesh, getPointerPosition) => {
   const startingPoint = getPointerPosition();
@@ -24,17 +25,17 @@ export const pointerUp = (
   const bowlingBallPosition = ballMovementObjects.bowling_ball.absolutePosition;
 
   //Mapping ball Speed with respect to the dragiing of the ball
-  const ballSpeed = (-bowlingBallPosition.z - 62) * 40;
-  if (bowlingBallPosition.z < -63) {
+  const ballSpeed = (-bowlingBallPosition.z - config.ballcontrol.initialPosition) * config.ballcontrol.speedConstant;
+  if (bowlingBallPosition.z < config.ballcontrol.threshold) {
     //Applying impulse to the ball
     ballMovementObjects.bowlingAggregate.body.applyImpulse(
-      new BABYLON.Vector3(-aim.rotation.y * 120, 0, ballSpeed),
+      new Vector3(-aim.rotation.y * config.ballcontrol.dirConstant, 0, ballSpeed),
       ballMovementObjects.bowling_ball.getAbsolutePosition()
     );
     window.globalShootmusic.play();
     setTimeout(function () {
       window.globalShootmusic.stop();
-    }, 1500);
+    }, config.time.ballRollSoundTime);
     game.ballIsRolled = true;
   }
 
@@ -48,16 +49,16 @@ export const pointerUp = (
 
       //Getting back the ball to it's initial position
       ballMovementObjects.bowlingAggregate.body.setLinearVelocity(
-        new BABYLON.Vector3(0, 0, 0)
+        Vector3.Zero()
       );
       ballMovementObjects.bowlingAggregate.body.setAngularVelocity(
-        new BABYLON.Vector3(0, 0, 0)
+        Vector3.Zero()
       );
-      ballMovementObjects.bowling_ball.rotation = new BABYLON.Vector3(0, 0, 0);
-      ballMovementObjects.bowling_ball.position = new BABYLON.Vector3(
-        0,
-        4,
-        -62
+      ballMovementObjects.bowling_ball.rotation = Vector3.Zero()
+      ballMovementObjects.bowling_ball.position = new Vector3(
+        config.ball.position[0],
+        config.ball.position[1],
+        config.ball.position[2]
       );
       //update the score board GUI -- current and overall scores
       updateGameScores(game);
@@ -72,13 +73,13 @@ export const pointerUp = (
           overallScoreBoardDisplay.isVisible = false;
           currentRollScoreBoardDisplay.isVisible = false;
           startMenuGUI(scene, game);
-        }, 1500);
+        }, config.time.endGameTimeAfterLastThrow);
       }
       //switch to the next player -- marks the end of the roll
       game.switchPlayer();
       game.ballIsRolled = false;
       game.initializePins();
-    }, 5000);
+    }, config.time.timeToNextThrow);
   }
   return [startingPoint, null];
 };
@@ -95,10 +96,10 @@ export const pointerMove = (
   if (currentMesh != ballMovementObjects.bowling_ball) return;
 
   let aimAngle =
-    (ballMovementObjects.bowling_ball.position.x + currentPosition.x) * 0.1;
+    (ballMovementObjects.bowling_ball.position.x + currentPosition.x) * config.ballcontrol.aimConstant;
 
-  if (aimAngle > 0.15) aimAngle = 0.15;
-  else if (aimAngle < -0.15) aimAngle = -0.15;
+  if (aimAngle > config.ballcontrol.aimLimit) aimAngle = config.ballcontrol.aimLimit;
+  else if (aimAngle < -config.ballcontrol.aimLimit) aimAngle = -config.ballcontrol.aimLimit;
 
   aim.rotation.y = aimAngle;
 
@@ -106,8 +107,8 @@ export const pointerMove = (
   differenceFromCurrentPoint.x = 0;
 
   // Define the limits for z movement
-  const minZ = -67; // Minimum z value
-  const maxZ = -62; // Maximum z value
+  const minZ = config.ballcontrol.minZ; // Minimum z value
+  const maxZ = config.ballcontrol.maxZ; // Maximum z value
 
   const newZ = ballMovementObjects.bowling_ball.position.z + differenceFromCurrentPoint.z;
 
@@ -125,10 +126,10 @@ export const pointerMove = (
 };
 
 export const ballMovement = (bowling_ball, pressedArrow) => {
-  if (bowling_ball.position.x <= 8 && bowling_ball.position.x >= -8) {
-    if (pressedArrow == "ArrowLeft" && bowling_ball.position.x != 8)
-      bowling_ball.position.x += 1;
-    if (pressedArrow == "ArrowRight" && bowling_ball.position.x != -8)
-      bowling_ball.position.x -= 1;
+  if (bowling_ball.position.x <= config.ballcontrol.maxX && bowling_ball.position.x >= config.ballcontrol.minX) {
+    if (pressedArrow == "ArrowLeft" && bowling_ball.position.x != config.ballcontrol.maxX)
+      bowling_ball.position.x += config.ballcontrol.inc;
+    if (pressedArrow == "ArrowRight" && bowling_ball.position.x != config.ballcontrol.minX)
+      bowling_ball.position.x -= config.ballcontrol.inc;
   }
 };
