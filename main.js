@@ -164,8 +164,8 @@ async function createScene() {
         toggleTeleportComponent.onButtonStateChangedObservable.add(()=>{
           if(toggleTeleportComponent.pressed) toggleTeleportation(xr);
         });
-        squeezeComponent.onButtonStateChangedObservable.add((value) => {
-          if(squeezeComponent.touched && game.isGameStarted) aimToBallControlling = !aimToBallControlling;
+        squeezeComponent.onButtonStateChangedObservable.add(() => {
+          if(squeezeComponent.value > 0.25 && game.isGameStarted) aimToBallControlling = !aimToBallControlling;
         })
         thumbStickComponent.onAxisValueChangedObservable.add((value)=>{
           if(game.isGameStarted && !game.ballIsRolled) {
@@ -176,7 +176,7 @@ async function createScene() {
         triggerComponent.onButtonStateChangedObservable.add(() => {
           if(game.isGameStarted && !game.ballIsRolled && triggerComponent.pressed){
             aim.isVisible = false;
-            ballShoot(aim, game, ballMovementObjects, bowlingPinResult, createBowlingPins, scene, thumbStickComponent, mapValue);
+            ballShoot(aim, game, ballMovementObjects, bowlingPinResult, createBowlingPins, scene, aimToBallControlling, thumbStickComponent, mapValue);
           }
         });
     });
