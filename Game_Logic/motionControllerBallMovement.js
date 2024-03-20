@@ -1,4 +1,4 @@
-import * as BABYLON from "@babylonjs/core";
+import { Vector3 } from "@babylonjs/core";
 import "@babylonjs/loaders";
 import { startMenuGUI } from "../Game_GUI/startMenuGUI";
 import {
@@ -6,7 +6,8 @@ import {
   currentRollScoreBoardDisplay,
 } from "../Game_GUI/renderScoreBoard";
 import { updateGameScores } from "../Game_GUI/scoreBoard";
- 
+import config from "../config.json"
+
 export const pointerDown2 = (xr) => {
   if(xr.teleportation.attached){
     xr.teleportation.detach();

@@ -1,9 +1,12 @@
+import { Vector3 } from "@babylonjs/core";
 import { scoreBoardGUI } from "./scoreBoard";
+import config from "../config.json"
+
 export let overallScoreBoardDisplay;
 export let currentRollScoreBoardDisplay;
 
 export function renderScoreBoard(scene) {
-  let scoreBoardpositionCoordinates = [-32.5, 7.5, 100];
+  let scoreBoardpositionCoordinates = new Vector3(-config.scorecard.position.x, config.scorecard.position.y, config.scorecard.position.z);
   overallScoreBoardDisplay = scoreBoardGUI(
     scene,
     scoreBoardpositionCoordinates,
@@ -11,7 +14,7 @@ export function renderScoreBoard(scene) {
     "ScoreBoard"
   );
 
-  let scoreBoardValuepositionCoordinates = [32.5, 7.5, 100];
+  let scoreBoardValuepositionCoordinates = new Vector3(config.scorecard.position.x, config.scorecard.position.y, config.scorecard.position.z);
   currentRollScoreBoardDisplay = scoreBoardGUI(
     scene,
     scoreBoardValuepositionCoordinates,

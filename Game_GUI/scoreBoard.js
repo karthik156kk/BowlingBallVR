@@ -1,12 +1,15 @@
 import { GUI3DManager } from "@babylonjs/gui/3D/gui3DManager";
 import { TextBlock } from "@babylonjs/gui";
 import { Button3D } from "@babylonjs/gui";
-import * as BABYLON from "@babylonjs/core";
+import { Vector3, AbstractMesh } from "@babylonjs/core";
 import { particles } from "../Game_Environment/particles";
 import {
   currentRollScoreBoardDisplay,
   overallScoreBoardDisplay,
 } from "./renderScoreBoard";
+import config from "../config.json"
+
+
 //updates the current roll and overall score after every roll for each player
 export const updateGameScores = (game) => {
   const currentRollScore = game.gameScoreCalculation();
@@ -19,8 +22,8 @@ export const updateGameScores = (game) => {
     game.entireFrames[game.currentPlayerIndex][game.currentFrameIndex].bonus ===
     "strike"
   ) {
-    particles(new BABYLON.Vector3(13, 18, -30));
-    particles(new BABYLON.Vector3(-13, 18, -30));
+    particles(new Vector3(config.particles.position.x, config.particles.position.y, config.particles.position.z));
+    particles(new Vector3(-config.particles.position.x, config.particles.position.y, config.particles.position.z));
     currentRollScoreBoardDisplay.appendText("\n!!!Strike!!!");
   }
   currentRollScoreBoardDisplay.appendText(
@@ -34,23 +37,21 @@ export const updateGameScores = (game) => {
 };
 
 export function scoreBoardGUI(scene, positionCoordinates, visibility, value) {
-  let anchor = new BABYLON.AbstractMesh("anchor", scene);
+  let anchor = new AbstractMesh("anchor", scene);
   let manager = new GUI3DManager(scene);
   let display = new Button3D("reset");
 
   manager.addControl(display);
   display.linkToTransformNode(anchor);
-  display.position.x = positionCoordinates[0];
-  display.position.y = positionCoordinates[1];
-  display.position.z = positionCoordinates[2];
-  display.scaling = new BABYLON.Vector3(32, 15, 30);
+  display.position = positionCoordinates;
+  display.scaling = new Vector3(config.scorecard.scaling.x, config.scorecard.scaling.y, config.scorecard.scaling.z);
   display.isVisible = visibility;
-  display.color = "navyblue";
+  display.color = config.scorecard.color[0];
 
   let textContent = new TextBlock();
   textContent.text = value;
-  textContent.color = "#14f9fe";
-  textContent.fontSize = 45;
+  textContent.color = config.scorecard.color[1];
+  textContent.fontSize = config.scorecard.fontsize;
   display.content = textContent;
 
   //Helps to update the value of Display Dynamically

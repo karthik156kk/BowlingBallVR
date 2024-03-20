@@ -1,24 +1,31 @@
-import * as BABYLON from "@babylonjs/core"
+import { MeshBuilder, Vector3, Color3, PBRMaterial, Mesh } from "@babylonjs/core"
+import config from "../config.json"
+
+//positions of the projection, arrow and aim respectively
+const positions = [];
+for (const { x, y, z } of config.aim.positions) {
+  const position = new Vector3(x, y, z);
+  positions.push(position);
+}
 
 export const createAim = (scene) => {
-    const projection = BABYLON.MeshBuilder.CreateBox("projection", {height: 0.1, width: 1, depth: 40});
-    projection.position.z = 22;
-    const pbrMaterial = new BABYLON.PBRMaterial("pbrMaterial", scene);
-    pbrMaterial.albedoColor = new BABYLON.Color3(1, 1, 1); 
+    const projection = MeshBuilder.CreateBox("projection", {height: config.aim.height, width: config.aim.width, depth: config.aim.depth});
+    projection.position = positions[[0]];
+    const pbrMaterial = new PBRMaterial("pbrMaterial", scene);
+    pbrMaterial.albedoColor = new Color3(config.pbr.color.x, config.pbr.color.y, config.pbr.color.z); 
     // Set other PBR properties
-    pbrMaterial.metallic = 0.5; // Low metallicness
-    pbrMaterial.roughness = 0.3; // Low roughness
-    pbrMaterial.alpha = 0.1;
+    pbrMaterial.metallic = config.pbr.metallic; // Low metallicness
+    pbrMaterial.roughness = config.pbr.roughness; // Low roughness
+    pbrMaterial.alpha = config.pbr.alpha;
   
-    const arrow = BABYLON.MeshBuilder.CreateCylinder("sphere", {height: 0.1, diameter: 7, tessellation: 3}); //{height: 0.01, diameter: 0, diameterTop: 1, diameterBottom: 1, tessellation: 3}
-    arrow.rotation.y = -Math.PI / 2;
-    arrow.position.z = 44;
+    const arrow = MeshBuilder.CreateCylinder("sphere", {height: config.aim.height, diameter: config.aim.diameter, tessellation: config.aim.tessellation}); //{height: 0.01, diameter: 0, diameterTop: 1, diameterBottom: 1, tessellation: 3}
+    arrow.rotation.y = config.aim.rotation;
+    arrow.position = positions[1];
   
     arrow.material = pbrMaterial;
   
-    const Aim = BABYLON.Mesh.MergeMeshes([arrow, projection]);
+    const Aim = Mesh.MergeMeshes([arrow, projection]);
   
-    Aim.position.y = 0.4;
-    Aim.position = new BABYLON.Vector3(0,0,0);
+    Aim.position = positions[2];
     return Aim;
   }

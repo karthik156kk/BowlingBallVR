@@ -108,6 +108,4 @@ export const createEnvironment = async(scene) => {
   roof.material = roofMat;
   roof.rotation = rotations[5];
   roof.position = positions[5];
-
-  //var xr = scene.createDefaultXRExperienceAsync({ floorMeshes: [ground] });
 };

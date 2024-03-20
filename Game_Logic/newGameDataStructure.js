@@ -1,3 +1,5 @@
+import config from "../config.json"
+
 // Class for managing a new game sessions
 //includes initializing frames, pins, and scoring
 export class StartNewGame {
@@ -9,7 +11,7 @@ export class StartNewGame {
     this.entireFrames = [];
     this.pinsArray = [];
     this.currentFrameIndex = 0;
-    this.totalAttempts = 100;
+    this.totalAttempts = config.game.totalattempts;
 
     this.players = players;
     this.totalScores = new Array(players.length).fill(0);
@@ -57,7 +59,7 @@ export class StartNewGame {
     ].downPins = fallenPins;
     this.entireFrames[this.currentPlayerIndex][this.currentFrameIndex].score =
       fallenPins.length;
-    if (fallenPins.length === 10) {
+    if (fallenPins.length === config.game.totalpins) {
       this.entireFrames[this.currentPlayerIndex][this.currentFrameIndex].bonus =
         "strike";
     }
