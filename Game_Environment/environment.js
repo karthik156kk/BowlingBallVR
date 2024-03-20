@@ -23,7 +23,7 @@ for (const { x, y, z } of config.wall.rotations) {
   rotations.push(rotation);
 }
 
-export const createEnvironment = async(scene) => {
+export const createEnvironment = (scene) => {
 
 
   //creation of ground
@@ -108,4 +108,6 @@ export const createEnvironment = async(scene) => {
   roof.material = roofMat;
   roof.rotation = rotations[5];
   roof.position = positions[5];
+
+  return ground;
 };

@@ -1,6 +1,6 @@
 import { Engine, Scene, HavokPlugin, Vector3, UniversalCamera, SceneLoader, PointerEventTypes, KeyboardEventTypes } from "@babylonjs/core";
 import "@babylonjs/loaders";
-
+import { startMenuGUI } from "./Game_GUI/startMenuGUI";
 import { rollCollisionHandler } from "./Game_Logic/gameCollisionHandler";
 import {
   pointerDown,
@@ -8,13 +8,14 @@ import {
   pointerMove,
   ballMovement,
 } from "./Game_Logic/ballMovementHandler";
-import { pointerDown2, pointerUp2, pointerMove2 } from "./Game_Logic/motionControllerBallMovement";
+import {toggleTeleportation, angleToAim, ballShoot} from "./Game_Logic/motionControllerBallMovement";
 import { createEnvironment } from "./Game_Environment/environment";
 import {
   createLights,
   createGameMusic,
   createRollSound,
 } from "./Game_Environment/lightsAndMusic";
+
 import { createAnimations } from "./Game_Environment/animation";
 import { createBowlingLane } from "./Game_Environment/bowlingLane";
 import { createAim } from "./Game_Logic/aim";
@@ -60,8 +61,9 @@ async function createScene() {
   const aim = createAim();
   aim.isVisible = false;
   let [bowling_ball, bowlingAggregate] = createBowlingBall(bowlingBallResult);
+  console.log(bowling_ball);
   aim.parent = bowling_ball;
-  createEnvironment(scene);
+  const ground = createEnvironment(scene);
   createLights();
   createGameMusic(scene);
   const lane = createBowlingLane();
@@ -124,7 +126,8 @@ async function createScene() {
 
   // Create a new instance of StartGame with generalPins
   let game = new StartNewGame(setPins, config.game.players);
-  createAnimations(camera, scene, game);
+  // createAnimations(camera, scene, game);
+  startMenuGUI(scene, game);
   createRollSound();
   renderScoreBoard(scene);
 
@@ -140,9 +143,10 @@ async function createScene() {
   });
 
   const xr = await scene.createDefaultXRExperienceAsync({
-    floorMeshes: [scene.ground]
+    floorMeshes: [ground],
   });
-  xr.teleportation.addFloorMesh(scene.ground);
+  xr.teleportation.addFloorMesh(ground);
+
 
   function mapValue(value, fromMin, fromMax, toMin, toMax) {
     var normalizedValue = (value - fromMin) / (fromMax - fromMin);
@@ -152,28 +156,29 @@ async function createScene() {
 
   xr.input.onControllerAddedObservable.add((controller) => {
     controller.onMotionControllerInitObservable.add((motionController) => {
-      if(motionController.handedness==='right'){
         const triggerComponent = motionController.getComponent("xr-standard-trigger");//xr-standard-trigger
         const thumbStickComponent = motionController.getComponent("xr-standard-thumbstick");//xr-standard-thumbstick
-        const shootButtonComponent = motionController.getComponent("xr-standard-squeeze");//y-button
-        const buttonComponent = motionController.getComponentOfType("button");//y-button
-        console.log('game is started and started checking for controller events')
-        buttonComponent.onButtonStateChangedObservable.add(()=>{
-          if(buttonComponent.pressed){
-            aim.isVisible = true;
-            pointerDown2(xr);
-            }
+        const squeezeComponent = motionController.getComponent("xr-standard-squeeze");//y-button
+        const [toggleTeleportComponent, unusedButtonComponent] = motionController.getAllComponentsOfType("button");
+        let aimToBallControlling = false;
+        toggleTeleportComponent.onButtonStateChangedObservable.add(()=>{
+          if(toggleTeleportComponent.pressed) toggleTeleportation(xr);
         });
-        thumbStickComponent.onAxisValueChangedObservable.add((value)=>{
-          if(!game.ballIsRolled) pointerMove2(value, ballMovementObjects, aim, mapValue)
+        squeezeComponent.onButtonStateChangedObservable.add((value) => {
+          if(squeezeComponent.touched && game.isGameStarted) aimToBallControlling = !aimToBallControlling;
         })
-        shootButtonComponent.onButtonStateChangedObservable.add(() => {
-          if(shootButtonComponent.pressed && !game.ballIsRolled){
+        thumbStickComponent.onAxisValueChangedObservable.add((value)=>{
+          if(game.isGameStarted && !game.ballIsRolled) {
+            aim.isVisible = true;
+            angleToAim(aimToBallControlling, value, ballMovementObjects, aim, mapValue);
+          }
+        })
+        triggerComponent.onButtonStateChangedObservable.add(() => {
+          if(game.isGameStarted && !game.ballIsRolled && triggerComponent.pressed){
             aim.isVisible = false;
-            pointerUp2(aim, game, ballMovementObjects, bowlingPinResult, createBowlingPins, scene,triggerComponent,mapValue);
+            ballShoot(aim, game, ballMovementObjects, bowlingPinResult, createBowlingPins, scene, thumbStickComponent, mapValue);
           }
         });
-      }
     });
   });
 

@@ -24,10 +24,12 @@ export const pointerUp = (
   createBowlingPins,
   scene
 ) => {
+
   const bowlingBallPosition = ballMovementObjects.bowling_ball.absolutePosition;
 
   //Mapping ball Speed with respect to the dragiing of the ball
-  const ballSpeed = (-bowlingBallPosition.z - config.ballcontrol.initialPosition) * config.ballcontrol.speedConstant;
+  const ballSpeed = (config.ballcontrol.initialPosition - bowlingBallPosition.z) * config.ballcontrol.speedConstant;
+  // console.log(config.ballcontrol.initialPosition, bowlingBallPosition.z, ballSpeed)
   if (bowlingBallPosition.z < config.ballcontrol.threshold) {
     //Applying impulse to the ball
     ballMovementObjects.bowlingAggregate.body.applyImpulse(
@@ -94,9 +96,7 @@ export const pointerMove = (
   currentMesh
 ) => {
   const currentPosition = getPointerPosition();
-
-  if (currentMesh != ballMovementObjects.bowling_ball) return;
-
+  if (currentMesh != ballMovementObjects.bowling_ball ||  currentPosition===null) return startingPoint;
   let aimAngle =
     (ballMovementObjects.bowling_ball.position.x + currentPosition.x) * config.ballcontrol.aimConstant;
 
@@ -104,6 +104,7 @@ export const pointerMove = (
   else if (aimAngle < -config.ballcontrol.aimLimit) aimAngle = -config.ballcontrol.aimLimit;
 
   aim.rotation.y = aimAngle;
+  console.log(currentPosition, startingPoint)
 
   const differenceFromCurrentPoint = currentPosition.subtract(startingPoint);
   differenceFromCurrentPoint.x = 0;
