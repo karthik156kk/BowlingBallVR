@@ -173,12 +173,12 @@
     "alpha": 0.1
   },
   "ballcontrol": {
-    "initialPosition": 6.2,
+    "initialPosition": -6.2,
     "speedConstant": 40,
     "threshold": -6.3,
     "dirConstant": 12,
-    "aimConstant": 0.1,
-    "aimLimit": 0.15,
+    "aimConstant": 2,
+    "aimLimit": 0.2,
     "minZ": -6.7,
     "maxZ": -6.2,
     "minX": -1,

@@ -1,6 +1,6 @@
 import { Engine, Scene, HavokPlugin, Vector3, UniversalCamera, SceneLoader, PointerEventTypes, KeyboardEventTypes } from "@babylonjs/core";
 import "@babylonjs/loaders";
-
+import { startMenuGUI } from "./Game_GUI/startMenuGUI";
 import { rollCollisionHandler } from "./Game_Logic/gameCollisionHandler";
 import {
   pointerDown,
@@ -8,12 +8,14 @@ import {
   pointerMove,
   ballMovement,
 } from "./Game_Logic/ballMovementHandler";
+import {toggleTeleportation, angleToAim, ballShoot} from "./Game_Logic/motionControllerBallMovement";
 import { createEnvironment } from "./Game_Environment/environment";
 import {
   createLights,
   createGameMusic,
   createRollSound,
 } from "./Game_Environment/lightsAndMusic";
+
 import { createAnimations } from "./Game_Environment/animation";
 import { createBowlingLane } from "./Game_Environment/bowlingLane";
 import { createAim } from "./Game_Logic/aim";
@@ -59,9 +61,9 @@ async function createScene() {
   const aim = createAim();
   aim.isVisible = false;
   let [bowling_ball, bowlingAggregate] = createBowlingBall(bowlingBallResult);
+  console.log(bowling_ball);
   aim.parent = bowling_ball;
-
-  createEnvironment(scene);
+  const ground = createEnvironment(scene);
   createLights();
   createGameMusic(scene);
   const lane = createBowlingLane();
@@ -124,7 +126,8 @@ async function createScene() {
 
   // Create a new instance of StartGame with generalPins
   let game = new StartNewGame(setPins, config.game.players);
-  createAnimations(camera, scene, game);
+  // createAnimations(camera, scene, game);
+  startMenuGUI(scene, game);
   createRollSound();
   renderScoreBoard(scene);
 
@@ -138,6 +141,48 @@ async function createScene() {
         ballMovement(bowling_ball, kbInfo.event.key);
     }
   });
+
+  const xr = await scene.createDefaultXRExperienceAsync({
+    floorMeshes: [ground],
+  });
+  xr.teleportation.addFloorMesh(ground);
+
+
+  function mapValue(value, fromMin, fromMax, toMin, toMax) {
+    var normalizedValue = (value - fromMin) / (fromMax - fromMin);
+    var mappedValue = normalizedValue * (toMax - toMin) + toMin;
+    return mappedValue;
+  }
+
+  xr.input.onControllerAddedObservable.add((controller) => {
+    controller.onMotionControllerInitObservable.add((motionController) => {
+        const triggerComponent = motionController.getComponent("xr-standard-trigger");//xr-standard-trigger
+        const thumbStickComponent = motionController.getComponent("xr-standard-thumbstick");//xr-standard-thumbstick
+        const squeezeComponent = motionController.getComponent("xr-standard-squeeze");//y-button
+        const [toggleTeleportComponent, unusedButtonComponent] = motionController.getAllComponentsOfType("button");
+        let aimToBallControlling = false;
+        toggleTeleportComponent.onButtonStateChangedObservable.add(()=>{
+          if(toggleTeleportComponent.pressed) toggleTeleportation(xr);
+        });
+        squeezeComponent.onButtonStateChangedObservable.add(() => {
+          if(squeezeComponent.value > 0.25 && game.isGameStarted) aimToBallControlling = !aimToBallControlling;
+        })
+        thumbStickComponent.onAxisValueChangedObservable.add((value)=>{
+          if(game.isGameStarted && !game.ballIsRolled) {
+            aim.isVisible = true;
+            angleToAim(aimToBallControlling, value, ballMovementObjects, aim, mapValue);
+          }
+        })
+        triggerComponent.onButtonStateChangedObservable.add(() => {
+          if(game.isGameStarted && !game.ballIsRolled && triggerComponent.pressed){
+            aim.isVisible = false;
+            ballShoot(aim, game, ballMovementObjects, bowlingPinResult, createBowlingPins, scene, aimToBallControlling, thumbStickComponent, mapValue);
+          }
+        });
+    });
+  });
+
+// startMenuGUI(scene, game);
 
   return scene;
 }

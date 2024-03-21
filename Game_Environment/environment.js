@@ -24,6 +24,8 @@ for (const { x, y, z } of config.wall.rotations) {
 }
 
 export const createEnvironment = (scene) => {
+
+
   //creation of ground
   const ground = MeshBuilder.CreateGround("ground", {
     width: config.ground.width,
@@ -107,5 +109,5 @@ export const createEnvironment = (scene) => {
   roof.rotation = rotations[5];
   roof.position = positions[5];
 
-  var xr = scene.createDefaultXRExperienceAsync({ floorMeshes: [ground] });
+  return ground;
 };
