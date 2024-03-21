@@ -1,5 +1,4 @@
 import "@babylonjs/loaders";
-import * as BABYLON from "@babylonjs/core"
 import { updateGameScores } from "../Game_GUI/scoreBoard";
 import config from "../config.json"
 import { Vector3 } from "@babylonjs/core";
@@ -39,7 +38,7 @@ export const ballShoot = (
      console.log(thumbStickComponent.value);
     //Applying impulse to the ball
     ballMovementObjects.bowlingAggregate.body.applyImpulse(
-      new BABYLON.Vector3(-aim.rotation.y * config.ballcontrol.dirConstant, 0, speed),
+      new Vector3(-aim.rotation.y * config.ballcontrol.dirConstant, 0, speed),
       ballMovementObjects.bowling_ball.getAbsolutePosition()
     );
     window.globalShootmusic.play();
