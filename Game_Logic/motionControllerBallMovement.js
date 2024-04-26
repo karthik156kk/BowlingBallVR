@@ -9,6 +9,7 @@ import {
   currentRollScoreBoardDisplay,
 } from "../Game_GUI/renderScoreBoard";
 import { createBowlingPins } from "../Game_Environment/bowlingBallAndPins";
+import { circleOfConfusionPixelShader } from "@babylonjs/core/Shaders/circleOfConfusion.fragment";
 
 function mapValue(value, fromMin, fromMax, toMin, toMax) {
   var normalizedValue = (value - fromMin) / (fromMax - fromMin);
@@ -16,15 +17,16 @@ function mapValue(value, fromMin, fromMax, toMin, toMax) {
   return mappedValue;
 }
 
-export const toggleTeleportation = (xr) => {
-  if(xr.teleportation.attached){
-    xr.teleportation.detach();
+export const toggleTeleportation = (xr, xrTeleportation) => {
+  if(xrTeleportation.attached){
+    xrTeleportation.detach();
     xr.pointerSelection.detach();
   }
   else {
-    xr.teleportation.attach();
+    xrTeleportation.attach();
     xr.pointerSelection.attach();
   }
+  console.log(xrTeleportation.attached)
 };
  
 export const ballShoot = (

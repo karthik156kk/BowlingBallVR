@@ -1,4 +1,4 @@
-import { Engine, Scene, HavokPlugin, Vector3, UniversalCamera, SceneLoader, PointerEventTypes, KeyboardEventTypes } from "@babylonjs/core";
+import { Engine, Scene, HavokPlugin, Vector3, UniversalCamera, SceneLoader, PointerEventTypes, KeyboardEventTypes, WebXRFeatureName, PhysicsAggregate, PhysicsShapeType, HighlightLayer, Color3} from "@babylonjs/core";
 import "@babylonjs/loaders";
 import { startMenuGUI } from "./Game_GUI/startMenuGUI";
 import { rollCollisionHandler } from "./Game_Logic/gameCollisionHandler";
@@ -61,12 +61,46 @@ async function createScene() {
   const aim = createAim();
   aim.isVisible = false;
   let [bowling_ball, bowlingAggregate] = createBowlingBall(bowlingBallResult);
+
+  var hl = new HighlightLayer("hl1", scene);
+  hl.addMesh(bowling_ball, new Color3(255, 240, 0));
+
   aim.parent = bowling_ball;
   const ground = createEnvironment(scene);
   const xr = await scene.createDefaultXRExperienceAsync({
     floorMeshes: [ground],
   });
   xr.teleportation.addFloorMesh(ground);
+  const featureManager = xr.baseExperience.featuresManager;
+  const xrHandFeature = featureManager.enableFeature(WebXRFeatureName.HAND_TRACKING, "latest", {
+    xrInput: xr.input
+  });
+  const xrTeleportation = featureManager.enableFeature(WebXRFeatureName.TELEPORTATION, "latest", {
+    xrInput: xr.input,
+    floorMeshes: [ground]
+  })
+
+  xrHandFeature.onHandAddedObservable.add((newHand) => {
+    console.log('hi')
+    for(let i=0; i<25; i++){
+      const handMeshAggregate = [];
+      const t = newHand._jointMeshes[i];
+      handMeshAggregate[i] = new PhysicsAggregate(
+      t,
+      PhysicsShapeType.SPHERE,{
+          radius: 0.001,      
+          //mass: 0,
+          //size: new BABYLON.Vector3(0.01, 0.01, 0.01),
+      },
+      scene
+      );
+      handMeshAggregate[i].mass = 3;
+      handMeshAggregate[i].body.disablePreStep = false;
+      handMeshAggregate[i].body.setCollisionCallbackEnabled(true);
+    }
+  });
+
+
   createLights();
   createGameMusic(scene);
   const lane = createBowlingLane();
@@ -125,6 +159,9 @@ async function createScene() {
             getPointerPosition
           );
           break;
+        case PointerEventTypes.POINTERTAP:
+          toggleTeleportation(xr, xrTeleportation);
+          break;
       }
     }
   });
@@ -152,29 +189,35 @@ async function createScene() {
       const allComponents = motionController.getComponentIds().map((componentId) => {
           return motionController.getComponent(componentId)
       });
-      const [trigger, squeeze, thumbStick, toggleTeleportButton] = allComponents;
-      let aimToBallControl = false;
-      toggleTeleportButton.onButtonStateChangedObservable.add(()=>{
-        if(toggleTeleportButton.pressed) toggleTeleportation(xr);
-      });
-      squeeze.onButtonStateChangedObservable.add(() => {
-        if(squeeze.value > config.motionController.squeezeThreshold && game.isGameStarted){
-          aimToBallControl = !aimToBallControl;
-        }
-      })
-      thumbStick.onAxisValueChangedObservable.add((value)=>{
-        if(game.isGameStarted && !game.ballIsRolled) {
-          aim.isVisible = true;
-          angleToAim(aimToBallControl, value, ballMovementObjects, aim);
-        }
-      })
-      trigger.onButtonStateChangedObservable.add(() => {
-        if(game.isGameStarted && !game.ballIsRolled && trigger.pressed){
-          aim.isVisible = false;    
-          aimToBallControl = false;
-          ballShoot(aim, game, ballMovementObjects, bowlingPinResult, scene, thumbStick, xr);
-        }
-      });
+      if(motionController.profileId === 'oculus-touch-v3'){
+        const [trigger, squeeze, thumbStick, toggleTeleportButton] = allComponents;
+        let aimToBallControl = false;
+        toggleTeleportButton.onButtonStateChangedObservable.add(()=>{
+          if(toggleTeleportButton.pressed) toggleTeleportation(xr, xrTeleportation);
+        });
+        squeeze.onButtonStateChangedObservable.add(() => {
+          if(squeeze.value > config.motionController.squeezeThreshold && game.isGameStarted){
+            aimToBallControl = !aimToBallControl;
+          }
+        })
+        thumbStick.onAxisValueChangedObservable.add((value)=>{
+          if(game.isGameStarted && !game.ballIsRolled) {
+            aim.isVisible = true;
+            angleToAim(aimToBallControl, value, ballMovementObjects, aim);
+          }
+        })
+        trigger.onButtonStateChangedObservable.add(() => {
+          if(game.isGameStarted && !game.ballIsRolled && trigger.pressed){
+            aim.isVisible = false;    
+            aimToBallControl = false;
+            ballShoot(aim, game, ballMovementObjects, bowlingPinResult, scene, thumbStick, xr);
+          }
+        });
+      } else if(motionController.profileId === 'generic-hand'){
+          if(game.isGameStarted){
+            turnOffTeleportation(xr, xrTeleportation);
+          }
+        } 
     });
   });
   return scene;

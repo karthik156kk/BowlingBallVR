@@ -2,7 +2,7 @@ import {
   Vector3,
   PhysicsAggregate,
   PhysicsShapeType,
-  InstancedMesh,
+  InstancedMesh
 } from "@babylonjs/core";
 import config from "../config.json" assert { type: "json" };
 
@@ -32,6 +32,7 @@ export const createBowlingBall = (bowlingBallResult, scene) => {
   );
   bowling_aggregator.body.disablePreStep = false;
   bowling_aggregator.body.setCollisionCallbackEnabled(true);
+
   return [bowling_ball, bowling_aggregator];
 };
 
